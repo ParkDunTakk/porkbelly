@@ -17,6 +17,7 @@ async function loadMe()
     if(user&&user.name)
     {
         greetEl.textContent=`${user.name} 님 `;
+        greetEl.style.color='#0085ff';
     }
 }
 
@@ -24,6 +25,7 @@ document.getElementById('login').onclick=()=>location.href='login.html';
 document.getElementById('logout').onclick=()=>
 {
     greetEl.textContent='프로필';
+    greetEl.style.color='black';
     alert('로그아웃 되었습니다.');
 };
 

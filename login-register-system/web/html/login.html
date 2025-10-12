@@ -3,25 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로그인</title>
+    <link rel="stylesheet" href="../css/login.css">
+    <link rel="icon" type="image/png" href="../images/icon.png" sizes="48x48">
+    <title>힐캣 : 로그인</title>
 </head>
 <body>
-    <h1>로그인</h1>
-    <form id="login-form">
-        <label>
-            아이디
-            <input name="userid" required>
-        </label>
-        <br>
-        <label>
-            비밀번호
-            <input type="password" name="password" required>
-        </label>
-        <br>
-        <button type="submit">로그인</button>
-    </form>
-    <a href="register.html">회원가입</a>
+    <header>
+        <a href="main.html"><img src="../images/logo.png" id="logo"></a>
+    </header>
 
-    <script src="../js/login.js"></script>
+    <section>
+        <form id="login-form">
+            <label>
+                <input name="userid" placeholder="아이디" id="id">
+            </label>
+            <label>
+                <input type="password" name="password" placeholder="비밀번호" id="pw">
+            </label>
+            <p id="no-id-pw"><span style="font-weight:bold;">아이디</span>와 <span style="font-weight:bold;">비밀번호</span>를 입력해주세요</p>
+            <p id="no-id"><span style="font-weight:bold;">아이디</span>를 입력해주세요</p>
+            <p id="no-pw"><span style="font-weight:bold;">비밀번호</span>를 입력해주세요</p>
+            <br>
+            <button type="submit" id="Btnlogin">로그인</button>
+            <a href="register.html" id="Goregister">회원가입</a>
+        </form>
+
+        <script src="../js/login.js"></script>
+
+    </section>
+    <section>
+        <a href="#"><img src="../images/ad.png" id="ad"></a>
+    </section>
+    <footer>
+        <p id="law">
+            <a href="#">이용약관</a> |
+            <a href="#"><span style="font-weight:bold; color:rgb(74,73,73);">개인정보처리방침</span></a> |
+            <a href="#">책임의 한계와 법적고지</a> |
+            <a href="#">회원정보 고객센터</a>
+        </p>
+    </footer>
+    <footer>
+        <img src="../images/healcat.png" id="character">
+        <img src="../images/logo.png" id="footerlogo">
+        <p id="copyright">copyright <span style="font-weight:bold; color:rgb(74,73,73);">&copy; Team 삼겹살.</span> All Rights Reserved.</p>
+    </footer>
+    <br> <!-- 아래 여유 공간 -->
+
+    <script>
+        const idInput=document.getElementById("id");
+        const pwInput=document.getElementById("pw");
+        const Btnlogin=document.getElementById("Btnlogin")
+        const ErrorMsgAll=document.getElementById("no-id-pw");
+        const ErrorMsgId=document.getElementById("no-id");
+        const ErrorMsgPw=document.getElementById("no-pw");
+
+        function updateButton()
+        {
+            if(idInput.value.trim() && pwInput.value.trim())
+            {
+                Btnlogin.style.backgroundColor="#0085ff";
+            }
+            else
+            {
+                Btnlogin.style.backgroundColor="gray";
+            }
+        };
+
+        idInput.addEventListener("input",updateButton);
+        pwInput.addEventListener("input",updateButton);
+    </script>
 </body> 
 </html>
