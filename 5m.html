@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>HealCat 🐱</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #b3e5fc, #e1bee7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    h1 { color: #7b1fa2; }
+    .nav {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .nav button {
+      background: #7e57c2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+    .nav button:hover { background: #5e35b1; }
+    .page {
+      display: none;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 360px;
+      padding: 20px;
+      text-align: center;
+    }
+    .active { display: block; }
+    .challenge {
+      background-color: #f3f3f3;
+      border-radius: 8px;
+      padding: 10px;
+      margin: 6px 0;
+      cursor: pointer;
+    }
+    .challenge.done {
+      background-color: #c8e6c9;
+      text-decoration: line-through;
+    }
+    .badge {
+      background-color: gold;
+      color: black;
+      padding: 5px 10px;
+      border-radius: 8px;
+      margin: 3px;
+      display: inline-block;
+      font-weight: bold;
+    }
+    button.action {
+      background-color: #7e57c2;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 10px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    button.action:hover { background-color: #5e35b1; }
+    .shop-item, .decor-item {
+      background: #f3e5f5;
+      margin: 8px;
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .room {
+      position: relative;
+      width: 320px;
+      height: 260px;
+      background-color: #fafafa;
+      border-radius: 15px;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .cat {
+      font-size: 60px;
+      position: absolute;
+      left: 130px;
+      top: 150px;
+      cursor: grab;
+    }
+    .decor {
+      font-size: 30px;
+      position: absolute;
+      cursor: grab;
+    }
+  </style>
+</head>
+<body>
+  <h1>🐾 HealCat</h1>
+
+  <div class="nav">
+    <button onclick="showPage('main')">🏠 메인</button>
+    <button onclick="showPage('shop')">🛍 쿠폰 상점</button>
+    <button onclick="showPage('room')">🏡 꾸밈방</button>
+  </div>
+
+  <!-- 🏠 메인 -->
+  <div id="main" class="page active">
+    <h2>오늘의 챌린지</h2>
+    <div id="challengeList"></div>
+    <h3>⭐ 포인트: <span id="points">0</span></h3>
+    <h3>🧩 레벨: <span id="level">1</span></h3>
+    <h3>🔥 출석: <span id="streak">0</span>일 연속</h3>
+    <h3>🏅 배지</h3>
+    <div id="badgeList">아직 배지가 없습니다.</div>
+    <h3>🐱 HealCat 펫</h3>
+    <div id="pet" style="font-size: 60px;">😺</div>
+    <button class="action" onclick="resetProgress()">초기화</button>
+  </div>
+
+  <!-- 🛍 쿠폰 상점 -->
+  <div id="shop" class="page">
+    <h2>🛍 HealShop — 일탈 쿠폰</h2>
+    <p>포인트로 작은 행복을 누려보세요 💫</p>
+    <div id="couponShop"></div>
+  </div>
+
+  <!-- 🏡 꾸밈방 -->
+  <div id="room" class="page">
+    <h2>🏡 나의 꾸밈방</h2>
+    <div class="room" id="roomArea">
+      <div id="cat" class="cat" draggable="true">😺</div>
+    </div>
+    <h3>🪄 꾸미기 아이템 상점</h3>
+    <div id="decorShop"></div>
+  </div>
+
+  <script>
+    let points = 0, level = 1, streak = 0, petStage = 1;
+    let badges = new Set();
+    const petEmojis = ["😺","😸","😻"];
+    const decorItems = [];
+    const today = new Date().toDateString();
+    const lastVisit = localStorage.getItem("lastVisit");
+
+    // ====== 출석 보상 ======
+    if (lastVisit !== today) {
+      streak = Number(localStorage.getItem("streak") || 0) + 1;
+      localStorage.setItem("streak", streak);
+      localStorage.setItem("lastVisit", today);
+      points += 50; // 🎁 출석 보상
+      alert("🎉 오늘도 오셨군요! 출석 보상으로 50포인트 획득!");
+    } else {
+      streak = Number(localStorage.getItem("streak") || 0);
+    }
+
+    // ====== 챌린지 ======
+    const challenges = [
+      { id: 1, text: "물 2L 마시기", done: false },
+      { id: 2, text: "30분 운동하기", done: false },
+      { id: 3, text: "야식 안 먹기", done: false },
+    ];
+
+    // ====== 일탈 쿠폰 ======
+    const coupons = [
+      { id: 1, name: "🍰 치트데이 쿠폰", cost: 300, desc: "오늘은 디저트 OK!" },
+      { id: 2, name: "☕ 휴식 패스", cost: 200, desc: "운동 건너뛰기 1회" },
+      { id: 3, name: "🎬 영화 보기 쿠폰", cost: 400, desc: "좋아하는 영화 한 편!" },
+      { id: 4, name: "🍿 야식 허용권", cost: 250, desc: "오늘은 야식도 괜찮아!" },
+      { id: 5, name: "🛋 홈카페 타임", cost: 350, desc: "커피 한 잔의 여유 ☕" },
+      { id: 6, name: "🌄 외출 패스", cost: 500, desc: "가볍게 산책하러 나가기!" }
+    ];
+
+    // ====== 꾸미기 상점 ======
+    const decorShopItems = [
+      { id: 1, name: "🎀 리본", cost: 150, emoji: "🎀" },
+      { id: 2, name: "🪴 화분", cost: 250, emoji: "🪴" },
+      { id: 3, name: "🌼 꽃장식", cost: 200, emoji: "🌼" },
+      { id: 4, name: "🕯 캔들", cost: 300, emoji: "🕯" },
+      { id: 5, name: "🧸 인형", cost: 400, emoji: "🧸" },
+    ];
+
+    // ====== 페이지 전환 ======
+    function showPage(id) {
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
+
+    // ====== UI 업데이트 ======
+    function updateUI() {
+      document.getElementById("points").textContent = points;
+      document.getElementById("level").textContent = level;
+      document.getElementById("streak").textContent = streak;
+      document.getElementById("pet").textContent = petEmojis[petStage - 1];
+      document.getElementById("cat").textContent = petEmojis[petStage - 1];
+      const badgeContainer = document.getElementById("badgeList");
+      badgeContainer.innerHTML = badges.size
+        ? [...badges].map(b => `<span class="badge">${b}</span>`).join("")
+        : "아직 배지가 없습니다.";
+    }
+
+    // ====== 챌린지 ======
+    function toggleChallenge(id) {
+      const c = challenges.find(ch => ch.id === id);
+      c.done = !c.done;
+      if (c.done) {
+        points += 50;
+        if (points % 100 === 0) level++;
+        if (points % 200 === 0 && petStage < 3) petStage++;
+        badges.add("도전왕 🥇");
+      } else points = Math.max(0, points - 50);
+      renderChallenges(); updateUI();
+    }
+
+    function renderChallenges() {
+      const list = document.getElementById("challengeList");
+      list.innerHTML = "";
+      challenges.forEach(c => {
+        const div = document.createElement("div");
+        div.className = "challenge" + (c.done ? " done" : "");
+        div.textContent = c.text;
+        div.onclick = () => toggleChallenge(c.id);
+        list.appendChild(div);
+      });
+    }
+
+    // ====== 쿠폰 상점 ======
+    function renderCouponShop() {
+      const list = document.getElementById("couponShop");
+      list.innerHTML = "";
+      coupons.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "shop-item";
+        div.innerHTML = `
+          <strong>${item.name}</strong> — ${item.cost}점<br>
+          <small>${item.desc}</small><br>
+          <button class="action" onclick="buyCoupon(${item.id})">구매</button>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function buyCoupon(id) {
+      const item = coupons.find(i => i.id === id);
+      if (points >= item.cost) {
+        points -= item.cost;
+        alert(`✅ ${item.name} 구매 완료!\n${item.desc}`);
+        updateUI();
+      } else alert("포인트가 부족합니다!");
+    }
+
+    // ====== 꾸미기 ======
+    function renderDecorShop() {
+      const list = document.getElementById("decorShop");
+      list.innerHTML = "";
+      decorShopItems.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "decor-item";
+        div.innerHTML = `
+          <strong>${item.name}</strong> — ${item.cost}점<br>
+          <button class="action" onclick="buyDecor(${item.id})">구매</button>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function buyDecor(id) {
+      const item = decorShopItems.find(i => i.id === id);
+      if (points >= item.cost) {
+        points -= item.cost;
+        addDecor(item.emoji);
+        alert(`🎉 ${item.name}을(를) 방에 추가했습니다!`);
+        updateUI();
+      } else alert("포인트가 부족합니다!");
+    }
+
+    function addDecor(emoji) {
+      const room = document.getElementById("roomArea");
+      const deco = document.createElement("div");
+      deco.className = "decor";
+      deco.textContent = emoji;
+      deco.style.left = Math.random() * 280 + "px";
+      deco.style.top = Math.random() * 200 + "px";
+      deco.draggable = true;
+
+      // 드래그 이동
+      deco.addEventListener("dragstart", e => {
+        e.dataTransfer.setData("text/plain", null);
+        deco.dataset.dragging = "true";
+      });
+      deco.addEventListener("dragend", e => {
+        deco.style.left = e.pageX - room.offsetLeft - 20 + "px";
+        deco.style.top = e.pageY - room.offsetTop - 50 + "px";
+        deco.dataset.dragging = "false";
+      });
+
+      room.appendChild(deco);
+      decorItems.push(emoji);
+    }
+
+    // ====== 초기화 ======
+    function resetProgress() {
+      points = 0; level = 1; petStage = 1;
+      badges.clear(); challenges.forEach(c => c.done = false);
+      localStorage.clear(); streak = 0;
+      document.getElementById("roomArea").innerHTML = '<div id="cat" class="cat" draggable="true">😺</div>';
+      renderChallenges(); renderCouponShop(); renderDecorShop(); updateUI();
+    }
+
+    // ====== 실행 ======
+    renderChallenges();
+    renderCouponShop();
+    renderDecorShop();
+    updateUI();
+  </script>
+</body>
+</html>
