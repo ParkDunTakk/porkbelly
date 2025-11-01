@@ -158,11 +158,11 @@ app.post
       if (!userid || !password) return res.status(400).json({ error: '필수값 누락' });
 
       const [rows] = await pool.query('SELECT * FROM users WHERE userid=?', [userid]);
-      if (!rows.length) return res.status(401).json({ error: '아이디/비밀번호 불일치' });
+      if (!rows.length) return res.status(401).json({ error: '없는 아이디입니다.' });
 
       const u = rows[0];
       const ok = await bcrypt.compare(password, u.password_hash);
-      if (!ok) return res.status(401).json({ error: '아이디/비밀번호 불일치' });
+      if (!ok) return res.status(401).json({ error: '비밀번호가 일치하지 않습니다.' });
 
       const user = { id: u.id, userid: u.userid, name: u.name };
       const token = signToken(user);
