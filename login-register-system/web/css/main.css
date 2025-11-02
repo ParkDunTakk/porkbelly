@@ -1,0 +1,29 @@
+@font-face 
+{
+  font-family: 'score1';
+  src: url(../fonts/SCDream1.otf) format('truetype');
+
+  font-family: 'score2';
+  src: url(../fonts/SCDream2.otf) format('truetype');
+
+  font-family: 'score3';
+  src: url(../fonts/SCDream3.otf) format('truetype');
+  
+  font-family: 'score4';
+  src: url(../fonts/SCDream4.otf) format('truetype');
+
+  font-family: 'score5';
+  src: url(../fonts/SCDream5.otf) format('truetype');
+
+  font-family: 'score6';
+  src: url(../fonts/SCDream6.otf) format('truetype');
+
+  font-family: 'score7';
+  src: url(../fonts/SCDream7.otf) format('truetype');
+
+  font-family: 'score8';
+  src: url(../fonts/SCDream8.otf) format('truetype');
+
+  font-family: 'score9';
+  src: url(../fonts/SCDream9.otf) format('truetype');
+}

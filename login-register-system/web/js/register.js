@@ -1,5 +1,74 @@
 const API_BASE='http://localhost:3000'; // API 서버의 기본 URL을 상수로 정의
 
+// ✅ 모든 필수 입력 완료 시 회원가입 버튼 활성화
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('register-form');
+  const btn = document.getElementById('register-btn');
+
+  // 최초엔 비활성화
+  if (btn) btn.disabled = true;
+
+  function validateForm() {
+    if (!form || !btn) return;
+
+    const userid = form.querySelector('input[name="userid"]')?.value.trim();
+    const password = form.querySelector('input[name="password"]')?.value.trim();
+    const name = form.querySelector('input[name="name"]')?.value.trim();
+
+    const ageStr = form.querySelector('input[name="age"]')?.value;
+    const ageNum = ageStr === '' ? NaN : Number(ageStr);
+    const ageOk = Number.isFinite(ageNum) && ageNum >= 1 && ageNum <= 130; // 나이 필수 + 범위
+
+    const sexChecked = !!form.querySelector('input[name="sex"]:checked');
+
+    const mbtiHidden = document.getElementById('mbtiHidden');
+    const mbtiOk = !!mbtiHidden && mbtiHidden.value.trim().length === 4;
+
+    const allOk = !!(userid && password && name && sexChecked && ageOk && mbtiOk);
+    btn.disabled = !allOk;
+  }
+
+  // 입력/변경 시마다 검사
+  form.addEventListener('input', validateForm);
+  form.addEventListener('change', validateForm);
+
+  // 페이지 로드 직후 한번 검사
+  validateForm();
+
+  // 이미 추가해둔 "라디오 재클릭 해제" 코드가 있다면, 그 안에서도 validateForm을 호출해주면 좋아요.
+  // 예: 라디오 해제 후 버튼이 다시 비활성화되어야 하니까요.
+  document.querySelectorAll('input[type="radio"]').forEach(r => {
+    r.addEventListener('click', () => {
+      // MBTI 라디오 해제 시 hidden 값 비우는 로직을 넣었다면 그 직후에:
+      validateForm();
+    });
+  });
+});
+
+
+// 라디오 다시 클릭 시 선택 취소 기능 (성별 + MBTI 모두)
+document.addEventListener('DOMContentLoaded', () => {
+  let lastChecked = {};
+
+  document.querySelectorAll('input[type="radio"]').forEach(radio => {
+    radio.addEventListener('click', function () {
+      const name = this.name;
+      // 같은 항목 다시 클릭 → 해제
+      if (lastChecked[name] === this) {
+        this.checked = false;
+        lastChecked[name] = null;
+        // MBTI 자동 조합 갱신용
+        if (name.startsWith('mbti_')) {
+          const mbtiHidden = document.getElementById('mbtiHidden');
+          if (mbtiHidden) mbtiHidden.value = '';
+        }
+      } else {
+        lastChecked[name] = this;
+      }
+    });
+  });
+});
+
 // MBTI 선택값을 자동으로 조합해 hidden input(name="mbti")에 넣는 로직
 (function() {
   const form = document.getElementById('register-form');
