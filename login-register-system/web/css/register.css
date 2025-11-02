@@ -1,0 +1,260 @@
+@font-face 
+{
+  font-family: 'score1';
+  src: url(../fonts/SCDream1.otf) format('opentype');
+
+  font-family: 'score2';
+  src: url(../fonts/SCDream2.otf) format('opentype');
+
+  font-family: 'score3';
+  src: url(../fonts/SCDream3.otf) format('opentype');
+  
+  font-family: 'score4';
+  src: url(../fonts/SCDream4.otf) format('opentype');
+
+  font-family: 'score5';
+  src: url(../fonts/SCDream5.otf) format('opentype');
+
+  font-family: 'score6';
+  src: url(../fonts/SCDream6.otf) format('opentype');
+
+  font-family: 'score7';
+  src: url(../fonts/SCDream7.otf) format('opentype');
+
+  font-family: 'score8';
+  src: url(../fonts/SCDream8.otf) format('opentype');
+
+  font-family: 'score9';
+  src: url(../fonts/SCDream9.otf) format('opentype');
+}
+
+*
+{
+    box-sizing:border-box;
+    font-family: 'score1', 'sans-serif';
+}
+
+:root
+{
+    --bg:#002576; 
+    --grad:#a0adc9; 
+    --card-t:#ffffff; 
+    --card-r:#ffffff;
+    --muted:#64748b; 
+    --line:#e5e7eb;
+    --primary:#2563eb; 
+    --chip:#f1f5ff; 
+    --chip-b:#c7d2fe; 
+    --danger:#ef4444; 
+    --ok:#16a34a;
+    --shadow:0 12px 28px rgba(15,23,42,.25); --r:16px;
+}
+
+body
+{
+    margin:0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    background:linear-gradient(180deg,var(--bg),var(--grad)); /* 위→아래 그라디언트 배경 */
+    color:#ffffff;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center; 
+    justify-content:center; 
+    padding:24px;
+}
+
+#gotomain
+{
+    margin-top:-30px;
+    margin-bottom:30px;
+}
+
+#title
+{
+    width:min(600px,100%); /* 최대 960px, 화면 작으면 100% */
+    background:var(--card-t); /* 흰색 카드 배경 */
+    border-radius:24px 24px 0 0; /* 모서리 둥글게 */
+    box-shadow:var(--shadow); /* 그림자 */
+    overflow:hidden; /* 내용 넘치면 숨김 */
+    text-align:left;
+    display:flex;
+    padding:10px 0 10px 0px;
+    color:black;
+    border-bottom:#002576 solid 3px;
+}
+#title>img
+{
+    margin-left:20px;
+}
+#title>#text
+{
+    font-weight:bold;
+    margin-left:10px;
+}
+
+#textdefault
+{
+    margin-top:-10px;
+    margin-bottom:10px;
+    font-weight:500;
+    color:black;
+    display:flex;
+    margin-left:50px;
+}
+#textmbti,#textinfo
+{
+    margin-top:10px;
+    margin-bottom:10px;
+    font-weight:500;
+    color:black;
+    display:flex;
+    margin-left:50px;
+}
+
+#register-form
+{
+    width:min(600px,100%); /* 최대 960px, 화면 작으면 100% */
+    background:var(--card-r); /* 흰색 카드 배경 */
+    border-radius:0 0 24px 24px; /* 모서리 둥글게 */
+    box-shadow:var(--shadow); /* 그림자 */
+    overflow:hidden; /* 내용 넘치면 숨김 */
+    text-align:center;
+    padding:20px 0 20px 0;
+}
+
+input
+{
+    width:500px;
+    border:1px solid #bdbdbd;
+    border-radius:10px;
+    padding:12px 14px;
+    font-family:'score5',sans-serif;
+    font-size:1rem;
+}
+
+/* 성별 세그먼트 */
+.seg 
+{
+  display: flex;
+  width: 500px; /* input 폭과 맞춤 */
+  border: 1px solid #bdbdbd; /* 바깥 테두리 */
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+  margin:auto; /* 가운데 정렬용 */
+  margin-bottom:-24px;
+}
+/* 라디오 숨김 (접근성 유지) */
+.seg > input[type="radio"] 
+{
+  position: absolute;
+  left: -9999px;
+}
+/* 각 버튼 라벨 */
+.seg > label 
+{
+  flex: 1 1 0;
+  text-align: center;
+  padding: 5px 0;
+  color: gray; /* 기본 회색 글자 */
+  cursor: pointer;
+  user-select: none;
+  border-right: 1px solid #bdbdbd; /* 칸 구분선 */
+}
+.seg > label:last-of-type 
+{
+  border-right: none;
+}
+/* 선택(checked)된 버튼 모양 - 녹색 테두리 느낌 */
+.seg > input[type="radio"]:checked + label 
+{
+  color: #0085ff;              /* 글자 */
+  background: #f6fbff;         /* 배경 */
+  box-shadow: inset 0 0 0 2px #0085ff; /* 안쪽 테두리 */
+}
+
+#register-btn
+{
+    width:40%;
+    background-color:gray;
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    padding:12px 14px;
+    font-family:'score5',sans-serif;
+    font-size:1rem;
+    cursor:pointer;
+    transition:background-color 0.3s ease;
+    margin-top:20px;
+}
+
+#reset-btn
+{
+    width:40%;
+    background-color:rgb(255, 76, 76);
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    padding:12px 14px;
+    font-family:'score5',sans-serif;
+    font-size:1rem;
+    cursor:pointer;
+}
+
+/* MBTI 그룹 */
+.mbti-group 
+{
+  display: flex;
+  justify-content: space-between; /* 가로 균등 분배 */
+  width: 500px; 
+  margin: auto;
+  gap: 5px; /* 각 구간 간격 */
+}
+/* 각 MBTI 구간(E/I, N/S 등)은 같은 폭으로 */
+.seg.seg-mbti {
+  flex: 1; /* 모든 구간 동일 비율 */
+  border-radius: 10px;
+  border: 1px solid #bdbdbd;
+  background: #fff;
+  display: flex;
+  overflow: hidden;
+}
+/* 내부 라디오 숨김 */
+.seg.seg-mbti > input[type="radio"] 
+{
+  position: absolute;
+  left: -9999px;
+}
+/* 선택 버튼 라벨 */
+.seg.seg-mbti > label 
+{
+  flex: 1;
+  text-align: center;
+  padding: 5px 0;
+  color: gray;
+  cursor: pointer;
+  user-select: none;
+  border-right: 1px solid #bdbdbd;
+  font-weight: 500;
+  font-size: 1rem;
+}
+.seg.seg-mbti > label:last-of-type 
+{
+  border-right: none;
+}
+/* 선택된 상태 */
+.seg.seg-mbti > input[type="radio"]:checked + label 
+{
+  color: #0085ff;
+  background: #f6fbff;
+  box-shadow: inset 0 0 0 2px #0085ff;
+}
+
+
+#gotologin
+{
+    text-decoration:none;
+    color:#002b52;
+    font-weight:bold;
+}
