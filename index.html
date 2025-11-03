@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>OpenAI 챗봇</title>
+    <style>
+        /* 기본적인 채팅 UI 스타일 */
+        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f4f4f9; }
+        .chat-container { width: 400px; height: 600px; border: 1px solid #ccc; background-color: white; display: flex; flex-direction: column; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .chat-box { flex-grow: 1; padding: 10px; overflow-y: auto; }
+        .input-area { display: flex; padding: 10px; border-top: 1px solid #eee; }
+        .input-area input { flex-grow: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px 0 0 4px; }
+        .input-area button { padding: 8px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; border-radius: 0 4px 4px 0; }
+        .message { margin-bottom: 10px; padding: 8px; border-radius: 5px; max-width: 80%; }
+        .user-message { background-color: #dcf8c6; margin-left: auto; text-align: right; }
+        .bot-message { background-color: #f1f0f0; margin-right: auto; }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-box" id="chatBox">
+            <div class="message bot-message">안녕하세요! 웹 개발에 대해 무엇이든 물어보세요.</div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="메시지를 입력하세요...">
+            <button onclick="sendMessage()">전송</button>
+        </div>
+    </div>
+
+    <script>
+        // 챗봇과의 세션을 구분하기 위한 고유 ID (실제 웹에서는 사용자 로그인 정보 등을 사용)
+        const SESSION_ID = 'user-unique-session-123';
+        const CHAT_API_ENDPOINT = 'http://127.0.0.1:5000/api/chat'; // Python 서버 주소
+
+        const chatBox = document.getElementById('chatBox');
+        const userInput = document.getElementById('userInput');
+
+        // 메시지를 채팅창에 추가하는 함수
+        function displayMessage(message, sender) {
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message');
+            msgDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+            msgDiv.textContent = message;
+            chatBox.appendChild(msgDiv);
+            // 스크롤을 항상 아래로 내립니다.
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // 챗봇 API로 메시지를 전송하는 핵심 함수
+        async function sendMessage() {
+            const userMessage = userInput.value.trim();
+            if (userMessage === '') return;
+
+            // 1. 사용자 메시지를 화면에 표시
+            displayMessage(userMessage, 'user');
+            userInput.value = ''; // 입력창 비우기
+
+            try {
+                // 2. 백엔드 서버로 POST 요청 전송 (Fetch API 사용)
+                const response = await fetch(CHAT_API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: userMessage,
+                        session_id: SESSION_ID 
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // 3. 챗봇 응답을 화면에 표시
+                    displayMessage(data.response, 'bot');
+                } else {
+                    // 서버 오류 처리
+                    displayMessage("죄송합니다. 서버에서 오류가 발생했습니다.", 'bot');
+                    console.error("API Error:", data.error);
+                }
+
+            } catch (error) {
+                // 네트워크 오류 처리 (서버가 꺼져있을 경우 등)
+                displayMessage("서버에 연결할 수 없습니다. 백엔드 서버가 실행 중인지 확인하세요.", 'bot');
+                console.error("Network Error:", error);
+            }
+        }
+        
+        // Enter 키로도 메시지를 전송할 수 있게 설정
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
