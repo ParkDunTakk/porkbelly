@@ -1,6 +1,13 @@
 const API_BASE = 'http://localhost:3000';
+const CHAT_BASE = 'http://127.0.0.1:8000';
+
 const greetEl = document.getElementById('greet');
 const getToken = () => localStorage.getItem('token'); // 항상 최신 토큰을 읽도록 함수로 정의
+const chatLog = document.getElementById('chat-log');
+const chatInput = document.getElementById('chat-input');
+const btnSend = document.getElementById('chat-send');
+const btnSendStream = document.getElementById('chat-send-stream');
+let chatHistory = [];
 
 async function loadMe() {
   const token = getToken();
@@ -64,3 +71,83 @@ document.getElementById('logout').onclick = async () => {
 };
 
 loadMe();
+
+function appendMsg(role,text) {
+  const p = document.createElement('p');
+  p.textContent = (role === 'user' ? '🧑 ' : '🤖 ') + text;
+  chatLog.appendChild(p);
+  chatLog.scrollTop = chatLog.scrollHeight;
+}
+
+async function sendChatOnce(message) {
+  appendMsg('user', message);
+  const res=await fetch(`${CHAT_BASE}/chat`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({message, history: chatHistory})
+  });
+  const data=await res.json();
+  const reply=data.reply || '';
+  appendMsg('assistant',reply);
+  chatHistory.push({role:'user', content: message});
+  chatHistory.push({role:'assistant', content:reply});
+}
+
+async function sendChatStream(message) {
+  appendMsg('user',message);
+  let buffer = '';
+  const p = document.createElement('p');
+  p.textContent='🤖 ';
+  chatLog.appendChild(p);
+  chatLog.scrollTop = chatLog.scrollHeight;
+
+  const res = await fetch(`${CHAT_BASE}/chat-stream`,{
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({message, history: chatHistory}),
+  });
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let acc = '';
+  while (true) {
+    const {value, done} = await reader.read();
+    if (done) break;
+    acc += decoder.decode(value);
+    const chunks = acc.split('\n\n');
+    acc = chunks.pop();
+    for (const chunk of chunks) {
+      if (!chunk.startsWith('data: ')) continue;
+      const payload = chunk.slice(6);
+      if (payload === '[DONE]') {
+        chatHistory.push({role:'user',content:message});
+        chatHistory.push({role:'assistant',content:buffer});
+        continue;
+      }
+      buffer += payload;
+      p.textContent = '🤖 ' + buffer;
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+  }
+}
+
+btnSend?.addEventListener('click', () => {
+  const msg = chatInput.value.trim();
+  if(!msg) return;
+  chatInput.value='';
+  sendChatOnce(msg).catch(console.error);
+});
+
+btnSendStream?.addEventListener('click', () => {
+  const msg = chatInput.value.trim();
+  if (!msg) return;
+  chatInput.value='';
+  sendChatStream(msg).catch(console.error);
+});
+
+chatInput?.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    btnSend?.click();
+  }
+});
